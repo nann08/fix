@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Nann Boy">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
+    <link rel="manifest" href='data:application/manifest+json,%7B%22name%22%3A%22Nann%20Boy%22%2C%22short_name%22%3A%22NannBoy%22%2C%22display%22%3A%22fullscreen%22%2C%22orientation%22%3A%22portrait%22%2C%22start_url%22%3A%22.%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%7D'>
     <title>Nann Emulator (mGBA)</title>
     
     <!-- Service Worker for Headers (SharedArrayBuffer support) -->
@@ -36,7 +38,7 @@
             --menu-btn-text: #374151;
             --menu-btn-border: #d1d5db;
         }
-        html, body { width: 100%; height: 100%; margin: 0; padding: 0; overscroll-behavior: none; position: fixed; overflow: hidden; background-color: var(--bg-color); transition: background-color 0.3s ease; font-family: 'Inter', sans-serif; display: flex; align-items: flex-start; justify-content: center; }
+        html, body { width: 100%; height: 100%; height: 100dvh; margin: 0; padding: 0; overscroll-behavior: none; position: fixed; overflow: hidden; background-color: var(--bg-color); transition: background-color 0.3s ease; font-family: 'Inter', sans-serif; display: flex; align-items: flex-start; justify-content: center; }
         #console-wrapper { transform-origin: top center; will-change: transform; display: flex; justify-content: center; transform: translate3d(0,0,0); }
         .gbc-body { --console-width: 440px; background: linear-gradient(145deg, var(--console-main) 0%, var(--console-dark) 100%); width: var(--console-width); border-radius: 20px 20px 60px 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 2px 2px 5px rgba(255,255,255,0.3); position: relative; display: flex; flex-direction: column; align-items: center; padding-top: calc(30px + var(--safe-top)); padding-bottom: var(--safe-bottom); contain: content; transition: background 0.3s ease; }
         .gbc-screen-lens { background-color: #3f3f46; width: 380px; height: 310px; border-radius: 15px 15px 50px 15px; padding: 20px 30px; box-shadow: inset 0px 0px 15px rgba(0,0,0,0.8); display: flex; flex-direction: column; align-items: center; position: relative; flex-shrink: 0; z-index: 10; transform: translate3d(0,0,0); }
@@ -1021,6 +1023,3 @@
     </script>
 </body>
 </html>
-
-
-
