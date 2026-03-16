@@ -186,9 +186,15 @@
         .nann-brand { font-family: 'Inter', sans-serif; font-style: italic; font-weight: 900; color: rgba(0,0,0,0.5); font-size: 28px; letter-spacing: 1px; margin-top: 20px; margin-bottom: 10px; text-shadow: -1px -1px 1px rgba(0,0,0,0.4), 1px 1px 1px rgba(255,255,255,0.3); }
         
         .controls-area { width: 100%; flex-grow: 1; position: relative; transform: translate3d(0,0,0); }
+        
+        /* NEW: L/R Bumper Buttons */
+        .lr-buttons { position: absolute; top: 0px; width: 100%; display: flex; justify-content: space-between; padding: 0 40px; z-index: 15; }
+        .btn-bumper { width: 70px; height: 24px; background-color: var(--btn-color); background-image: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.2) 100%); border-radius: 6px; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4), inset -1px -1px 3px rgba(0,0,0,0.8), 2px 4px 6px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.05s, box-shadow 0.05s; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-size: 14px; font-weight: 900; letter-spacing: 1px; }
+        .btn-bumper.pressed { transform: translateY(2px); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.6), 0 1px 1px rgba(0,0,0,0.3); }
+
         .speaker-grille { position: absolute; bottom: 40px; right: 25px; display: flex; gap: 8px; transform: rotate(-25deg); z-index: 10; }
         .vent-slot { width: 8px; height: 60px; background-color: rgba(0,0,0,0.25); border-radius: 4px; box-shadow: inset 2px 2px 4px rgba(0,0,0,0.6), 1px 1px 0 rgba(255,255,255,0.15); }
-        .dpad { position: absolute; top: 40px; left: 40px; width: 130px; height: 130px; }
+        .dpad { position: absolute; top: 75px; left: 40px; width: 130px; height: 130px; }
         .dpad-cross { width: 100%; height: 100%; position: relative; }
         
         /* REALISM OVERHAUL: Beveled D-Pad */
@@ -202,7 +208,7 @@
         .dpad-btn { position: absolute; width: 55px; height: 55px; z-index: 20; cursor: pointer; }
         .dpad-btn.pressed { background-color: rgba(255, 255, 255, 0.05); border-radius: 50%; }
         .dpad-up { top: -5px; left: 37px; } .dpad-down { bottom: -5px; left: 37px; } .dpad-left { top: 37px; left: -5px; } .dpad-right { top: 37px; right: -5px; }
-        .action-buttons { position: absolute; top: 40px; right: 30px; width: 150px; height: 80px; transform: rotate(-20deg); }
+        .action-buttons { position: absolute; top: 75px; right: 30px; width: 150px; height: 80px; transform: rotate(-20deg); }
         
         /* REALISM OVERHAUL: Curved Hardware Buttons */
         .btn-round { width: 60px; height: 60px; background-color: var(--btn-color); background-image: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.2) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; position: absolute; transition: transform 0.05s, box-shadow 0.05s; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.3), inset -3px -3px 6px rgba(0,0,0,0.8), 3px 6px 10px rgba(0,0,0,0.6); color: rgba(255,255,255,0.15); font-size: 24px; font-weight: 900; }
@@ -367,6 +373,7 @@
             </div>
             <div class="nann-brand">NANN BOY</div>
             <div class="controls-area">
+                <div class="lr-buttons"><div class="btn-bumper" id="btn-l" data-label="L">L</div><div class="btn-bumper" id="btn-r" data-label="R">R</div></div>
                 <div class="speaker-grille"><div class="vent-slot"></div><div class="vent-slot"></div><div class="vent-slot"></div><div class="vent-slot"></div><div class="vent-slot"></div><div class="vent-slot"></div></div>
                 <div class="dpad"><div class="dpad-cross"><div class="dpad-arm dpad-h"></div><div class="dpad-arm dpad-v"></div><div class="dpad-center"></div><div class="dpad-btn dpad-up" data-label="Up"></div><div class="dpad-btn dpad-down" data-label="Down"></div><div class="dpad-btn dpad-left" data-label="Left"></div><div class="dpad-btn dpad-right" data-label="Right"></div></div></div>
                 <div class="action-buttons"><div class="btn-round btn-b" id="btn-b" data-label="B">B</div><div class="btn-round btn-a" id="btn-a" data-label="A">A</div></div>
@@ -399,6 +406,8 @@
             'Right': { key: 'ArrowRight', code: 'ArrowRight', keyCode: 39 }, 
             'A': { key: 'x', code: 'KeyX', keyCode: 88 },  
             'B': { key: 'z', code: 'KeyZ', keyCode: 90 },  
+            'L': { key: 'a', code: 'KeyA', keyCode: 65 },
+            'R': { key: 's', code: 'KeyS', keyCode: 83 },
             'Start': { key: 'Enter', code: 'Enter', keyCode: 13 },
             'Select': { key: 'Backspace', code: 'Backspace', keyCode: 8 },
         };
@@ -1013,7 +1022,7 @@
         }
 
         function setupControlListeners() {
-            const gameControls = document.querySelectorAll('.dpad-btn, .btn-round, .btn-pill'); 
+            const gameControls = document.querySelectorAll('.dpad-btn, .btn-round, .btn-pill, .btn-bumper'); 
             const handleStart = (e) => {
                 e.preventDefault(); const control = e.currentTarget; const label = control.getAttribute('data-label');
                 if (currentMenu !== null && label !== 'Start' && label !== 'Select') return;
