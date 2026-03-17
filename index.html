@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; user-select: none; }
+        *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
         /* UPDATED: Added button color variables for theming */
         :root { 
             --screen-color: #000000; 
@@ -185,7 +185,7 @@
         /* REALISM OVERHAUL: Engraved Brand Text */
         .nann-brand { font-family: 'Inter', sans-serif; font-style: italic; font-weight: 900; color: rgba(0,0,0,0.5); font-size: 28px; letter-spacing: 1px; margin-top: 20px; margin-bottom: 10px; text-shadow: -1px -1px 1px rgba(0,0,0,0.4), 1px 1px 1px rgba(255,255,255,0.3); }
         
-        .controls-area { width: 100%; flex-grow: 1; position: relative; transform: translate3d(0,0,0); }
+        .controls-area { width: 100%; flex-grow: 1; position: relative; transform: translate3d(0,0,0); touch-action: none; }
         
         /* NEW: L/R Bumper Buttons */
         .lr-buttons { position: absolute; top: 0px; width: 100%; display: flex; justify-content: space-between; padding: 0 40px; z-index: 15; }
@@ -1022,20 +1022,91 @@
         }
 
         function setupControlListeners() {
-            const gameControls = document.querySelectorAll('.dpad-btn, .btn-round, .btn-pill, .btn-bumper'); 
-            const handleStart = (e) => {
-                e.preventDefault(); const control = e.currentTarget; const label = control.getAttribute('data-label');
+            const activeTouches = {}; // Maps a physical finger ID to the button it's currently pressing
+            let activeMouseControl = null; // For desktop testing
+
+            const pressButton = (control) => {
+                if (!control) return;
+                const label = control.getAttribute('data-label');
                 if (currentMenu !== null && label !== 'Start' && label !== 'Select') return;
+                
+                // Debounce to prevent double-firing
+                if (control.classList.contains('pressed')) return;
+
                 initAudio(); playHapticSound(); if (navigator.vibrate) navigator.vibrate(15);
                 control.pressTime = Date.now(); control.isTap = true;
                 handleVisualPress(control, true); updateDpadVisuals(label, true); handleVirtualPress(label, true, true); 
             };
-            const handleEnd = (e) => {
-                e.preventDefault(); const control = e.currentTarget; const label = control.getAttribute('data-label');
+
+            const releaseButton = (control) => {
+                if (!control || !control.classList.contains('pressed')) return;
+                const label = control.getAttribute('data-label');
                 handleVirtualPress(label, false, true); handleVisualPress(control, false); updateDpadVisuals(label, false);
                 if (label === 'Select' && control.isTap) { const duration = Date.now() - (control.pressTime || 0); if (duration < 300) { toggleMenu('main-menu'); } } control.isTap = false;
             };
-            gameControls.forEach(control => { control.addEventListener('touchstart', handleStart, { passive: false }); control.addEventListener('mousedown', handleStart); control.addEventListener('touchend', handleEnd); control.addEventListener('mouseup', handleEnd); control.addEventListener('mouseleave', handleEnd); });
+
+            const controlsArea = document.querySelector('.controls-area');
+            if (controlsArea) {
+                // 1. TOUCH START: Finger touches down
+                controlsArea.addEventListener('touchstart', (e) => {
+                    if (e.cancelable) e.preventDefault();
+                    for (let i = 0; i < e.changedTouches.length; i++) {
+                        const touch = e.changedTouches[i];
+                        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                        const control = target ? target.closest('.dpad-btn, .btn-round, .btn-pill, .btn-bumper') : null;
+                        if (control) {
+                            pressButton(control);
+                            activeTouches[touch.identifier] = control;
+                        }
+                    }
+                }, { passive: false });
+
+                // 2. TOUCH MOVE: Finger slides across screen
+                controlsArea.addEventListener('touchmove', (e) => {
+                    if (e.cancelable) e.preventDefault();
+                    for (let i = 0; i < e.changedTouches.length; i++) {
+                        const touch = e.changedTouches[i];
+                        const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                        const control = target ? target.closest('.dpad-btn, .btn-round, .btn-pill, .btn-bumper') : null;
+                        const previousControl = activeTouches[touch.identifier];
+
+                        // If the finger slid off one button and onto another (or onto blank plastic)
+                        if (control !== previousControl) {
+                            if (previousControl) releaseButton(previousControl);
+                            if (control) pressButton(control);
+                            activeTouches[touch.identifier] = control;
+                        }
+                    }
+                }, { passive: false });
+
+                // 3. TOUCH END / CANCEL: Finger lifts off screen completely
+                const handleTouchEnd = (e) => {
+                    if (e.cancelable) e.preventDefault();
+                    for (let i = 0; i < e.changedTouches.length; i++) {
+                        const touch = e.changedTouches[i];
+                        const activeControl = activeTouches[touch.identifier];
+                        
+                        // Release exactly what this specific finger was holding down
+                        if (activeControl) {
+                            releaseButton(activeControl);
+                            delete activeTouches[touch.identifier];
+                        }
+                    }
+                };
+
+                controlsArea.addEventListener('touchend', handleTouchEnd, { passive: false });
+                controlsArea.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+
+                // 4. DESKTOP MOUSE FALLBACKS
+                controlsArea.addEventListener('mousedown', (e) => {
+                    const control = e.target.closest('.dpad-btn, .btn-round, .btn-pill, .btn-bumper');
+                    if (control) { pressButton(control); activeMouseControl = control; }
+                });
+            }
+            
+            document.addEventListener('mouseup', () => { 
+                if (activeMouseControl) { releaseButton(activeMouseControl); activeMouseControl = null; }
+            });
             
             document.getElementById('btn-close-key-map')?.addEventListener('click', () => openMenu('main-menu'));
             document.getElementById('file-input-html')?.addEventListener('change', (e) => { handleHtmlUpload(e); e.target.value = null; });
@@ -1065,3 +1136,13 @@
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
