@@ -189,7 +189,7 @@
         
         /* NEW: L/R Bumper Buttons */
         .lr-buttons { position: absolute; top: 0px; width: 100%; display: flex; justify-content: space-between; padding: 0 40px; z-index: 15; }
-        .btn-bumper { width: 70px; height: 24px; background-color: var(--btn-color); background-image: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.2) 100%); border-radius: 6px; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4), inset -1px -1px 3px rgba(0,0,0,0.8), 2px 4px 6px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.05s, box-shadow 0.05s; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-size: 14px; font-weight: 900; letter-spacing: 1px; }
+        .btn-bumper { width: 70px; height: 24px; background-color: var(--btn-color); background-image: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.2) 100%); border-radius: 6px; box-shadow: inset 1px 1px 2px rgba(255,255,255,0.4), inset -1px -1px 3px rgba(0,0,0,0.8), 2px 4px 6px rgba(0,0,0,0.5); cursor: pointer; transition: transform 0.05s, box-shadow 0.05s; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.3); font-size: 14px; font-weight: 900; letter-spacing: 1px; position: relative; }
         .btn-bumper.pressed { transform: translateY(2px); box-shadow: inset 2px 2px 4px rgba(0,0,0,0.6), 0 1px 1px rgba(0,0,0,0.3); }
 
         .speaker-grille { position: absolute; bottom: 40px; right: 25px; display: flex; gap: 8px; transform: rotate(-25deg); z-index: 10; }
@@ -214,6 +214,16 @@
         .btn-round { width: 60px; height: 60px; background-color: var(--btn-color); background-image: linear-gradient(145deg, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.2) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; position: absolute; transition: transform 0.05s, box-shadow 0.05s; box-shadow: inset 2px 2px 5px rgba(255,255,255,0.3), inset -3px -3px 6px rgba(0,0,0,0.8), 3px 6px 10px rgba(0,0,0,0.6); color: rgba(255,255,255,0.15); font-size: 24px; font-weight: 900; }
         .btn-round.pressed { transform: translateY(3px) !important; box-shadow: inset 3px 3px 8px rgba(0,0,0,0.6), inset -1px -1px 2px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.4); }
         .btn-b { bottom: 0; left: 0; } .btn-a { top: 0; right: 0; }
+        
+        /* INVISIBLE OVERSIZED HITBOXES FOR ACTION & BUMPER BUTTONS */
+        .btn-round::after, .btn-bumper::after {
+            content: '';
+            position: absolute;
+            top: -20px; left: -20px; right: -20px; bottom: -20px;
+            border-radius: inherit;
+            z-index: 10;
+        }
+
         .meta-buttons { position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%); display: flex; gap: 30px; }
         
         /* REALISM OVERHAUL: Pill Buttons & Etched Text */
@@ -1136,6 +1146,7 @@
     </script>
 </body>
 </html>
+
 
 
 
